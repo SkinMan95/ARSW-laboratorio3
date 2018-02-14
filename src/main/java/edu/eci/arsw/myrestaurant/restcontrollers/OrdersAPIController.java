@@ -30,6 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -54,21 +58,45 @@ public class OrdersAPIController {
     RestaurantOrderServices data;
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<?> manejadorGetRecurso() {
+    public ResponseEntity<?> getResourceHandler() {
         //obtener datos que se enviarán a través del API
-        JsonObjectBuilder jsonDoc = Json.createObjectBuilder();
+        
 
         List<Order> orders = new ArrayList<>();
         for (Integer tableWithOrder : data.getTablesWithOrders()) {
             orders.add(data.getTableOrder(tableWithOrder));
         }
-
+        
+        JsonObjectBuilder jsonDoc = Json.createObjectBuilder();
+        
+        JsonArrayBuilder array = Json.createArrayBuilder();
         for (Order order : orders) {
+            JsonObjectBuilder doc = Json.createObjectBuilder();
+            doc.add("table", order.getTableNumber());
+            Set<String> dishes = order.getOrderedDishes();
+            doc.add("dishes", dishes.toString());
+            array.add(doc);
+        }
+        jsonDoc.add("tables", array);
+
+        return new ResponseEntity<>(jsonDoc.build().toString(), HttpStatus.ACCEPTED);
+    }
+    
+    @GetMapping("/{idtable}")
+    public ResponseEntity<?> getTableHandler(@PathVariable Long idtable) {
+        Order order = data.getTableOrder(idtable.intValue());
+        
+        HttpStatus status = HttpStatus.ACCEPTED;
+        JsonObjectBuilder jsonDoc = Json.createObjectBuilder();
+        
+        if (order == null) {
+            status = HttpStatus.NOT_FOUND;
+        } else {
             jsonDoc.add("table", order.getTableNumber());
             Set<String> dishes = order.getOrderedDishes();
             jsonDoc.add("dishes", dishes.toString());
         }
-
-        return new ResponseEntity<>(jsonDoc.build().toString(), HttpStatus.ACCEPTED);
+        
+        return new ResponseEntity<>(jsonDoc.build().toString(), status);
     }
 }
