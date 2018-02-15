@@ -293,7 +293,7 @@ public class OrdersAPIController {
     }
 
     @DeleteMapping("/{idtable}")
-    public ResponseEntity<?> putAddProductOrder(@PathVariable Long idtable) {
+    public ResponseEntity<?> deleteProductOrder(@PathVariable Long idtable) {
         try {
             ros.releaseTable(idtable.intValue());
             return new ResponseEntity<>(HttpStatus.OK);
