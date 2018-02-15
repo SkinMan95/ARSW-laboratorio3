@@ -64,15 +64,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrdersAPIController {
 
     @Autowired
-    RestaurantOrderServices data;
+    RestaurantOrderServices ros;
 
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<?> getResourceHandler() {
         //obtener datos que se enviarán a través del API
 
         List<Order> orders = new ArrayList<>();
-        for (Integer tableWithOrder : data.getTablesWithOrders()) {
-            orders.add(data.getTableOrder(tableWithOrder));
+        for (Integer tableWithOrder : ros.getTablesWithOrders()) {
+            orders.add(ros.getTableOrder(tableWithOrder));
         }
 
         JsonObjectBuilder jsonDoc = Json.createObjectBuilder();
@@ -107,7 +107,7 @@ public class OrdersAPIController {
 
     @GetMapping("/{idtable}")
     public ResponseEntity<?> getTableHandler(@PathVariable Long idtable) {
-        Order order = data.getTableOrder(idtable.intValue());
+        Order order = ros.getTableOrder(idtable.intValue());
 
         HttpStatus status = HttpStatus.ACCEPTED;
         JsonObjectBuilder jsonDoc = Json.createObjectBuilder();
@@ -168,7 +168,7 @@ public class OrdersAPIController {
             if (success) {
                 Order ord = generateOrder(tableNumber, dishes);
 
-                data.addNewOrderToTable(ord);
+                ros.addNewOrderToTable(ord);
 
                 return new ResponseEntity<>(HttpStatus.CREATED);
             } else {
@@ -240,7 +240,7 @@ public class OrdersAPIController {
         int total = 0;
 
         try {
-            total = data.calculateTableBill(idtable.intValue());
+            total = ros.calculateTableBill(idtable.intValue());
         } catch (OrderServicesException ex) {
             status = HttpStatus.NOT_FOUND;
         }
@@ -276,7 +276,7 @@ public class OrdersAPIController {
             parser.close();
 
             if (success) {
-                Order ord = data.getTableOrder(idtable.intValue());
+                Order ord = ros.getTableOrder(idtable.intValue());
 
                 for (String dish : dishes.keySet()) {
                     ord.addDish(dish, dishes.get(dish));
@@ -295,7 +295,7 @@ public class OrdersAPIController {
     @DeleteMapping("/{idtable}")
     public ResponseEntity<?> putAddProductOrder(@PathVariable Long idtable) {
         try {
-            data.releaseTable(idtable.intValue());
+            ros.releaseTable(idtable.intValue());
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (OrderServicesException ex) {
             return new ResponseEntity<>("table " + idtable + " doesn't have reservations", HttpStatus.BAD_REQUEST);

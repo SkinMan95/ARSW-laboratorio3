@@ -54,11 +54,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class ApplicationServicesTests {
 
     @Autowired
-    RestaurantOrderServices data;
+    RestaurantOrderServices ros;
 
     @Test
     public void test1() throws OrderServicesException {
-        assertTrue("RestaurantOrderServices is not null", data != null);
+        assertTrue("RestaurantOrderServices is not null", ros != null);
         
         int table = 2;
         
@@ -68,14 +68,14 @@ public class ApplicationServicesTests {
         o.addDish("PIZZA", 2); // 2 * 10000 * (1.19)
         o.addDish("BEER", 2); // 2 * 2500 * (1.16)
         
-        data.addNewOrderToTable(o);
+        ros.addNewOrderToTable(o);
         
-        assertEquals(73511, data.calculateTableBill(table));
+        assertEquals(73511, ros.calculateTableBill(table));
     }
     
     @Test
     public void test2() throws OrderServicesException {
-        assertTrue("RestaurantOrderServices is not null", data != null);
+        assertTrue("RestaurantOrderServices is not null", ros != null);
         
         int table = 4;
         
@@ -83,14 +83,14 @@ public class ApplicationServicesTests {
         
         o.addDish("HOTDOG", 1); // 3 * 12300 * (1.19)
         
-        data.addNewOrderToTable(o);
+        ros.addNewOrderToTable(o);
         
-        assertEquals(3570, data.calculateTableBill(table));
+        assertEquals(3570, ros.calculateTableBill(table));
     }
     
     @Test(expected = OrderServicesException.class)
     public void test3() throws OrderServicesException {
-        assertTrue("RestaurantOrderServices is not null", data != null);
+        assertTrue("RestaurantOrderServices is not null", ros != null);
         
         int table = 5;
         
@@ -98,13 +98,13 @@ public class ApplicationServicesTests {
         
         o.addDish("HOTDOG", 1); // 3 * 12300 * (1.19)
         
-        data.addNewOrderToTable(o);
+        ros.addNewOrderToTable(o);
         
         o = new Order(table);
         
         o.addDish("HOTDOG", 1); // 3 * 12300 * (1.19)
         
-        data.addNewOrderToTable(o);
+        ros.addNewOrderToTable(o);
     }
 
 }
