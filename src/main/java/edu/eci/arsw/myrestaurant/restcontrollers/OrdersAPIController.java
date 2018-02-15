@@ -135,27 +135,23 @@ public class OrdersAPIController {
             Long tableNumber = null;
 
             //System.out.println(event);
-
             if (success = (event == Event.KEY_NAME)) {
                 success = (table = parser.getString()).equals("table");
             }
 
             //System.out.println("1 " + success + " " + table);
-
             event = parser.next();
             if (success &= (event == Event.VALUE_NUMBER)) {
                 tableNumber = parser.getLong();
             }
 
             //System.out.println("2 " + success + " " + event);
-
             event = parser.next();
             if (success = (event == Event.KEY_NAME)) {
                 success = parser.getString().equals("dishes");
             }
 
             //System.out.println("3 " + success + " " + event);
-
             Map<String, Integer> dishes = null;
             event = parser.next();
             if (success &= (event == Event.START_ARRAY)) {
@@ -165,7 +161,6 @@ public class OrdersAPIController {
             success &= dishes != null;
 
             //System.out.println("4 " + success + " " + event);
-
             parser.close();
 
             if (success) {
@@ -186,9 +181,8 @@ public class OrdersAPIController {
     private Map<String, Integer> getDishesFromJsonArray(JsonParser parser) throws OrdersAPIControllerException {
         Event e = parser.next();
         boolean valid = (e == Event.START_OBJECT);
-        
-        //System.out.println("1 " + e + " " + valid);
 
+        //System.out.println("1 " + e + " " + valid);
         String key = "";
         Long value = 0L;
 
@@ -235,5 +229,20 @@ public class OrdersAPIController {
         }
 
         return r;
+    }
+
+    @GetMapping("/{idtable}/total")
+    public ResponseEntity<?> getTotalTableHandler(@PathVariable Long idtable) {
+        HttpStatus status = HttpStatus.ACCEPTED;
+
+        int total = 0;
+        
+        try {
+            total = data.calculateTableBill(idtable.intValue());
+        } catch (OrderServicesException ex) {
+            status = HttpStatus.NOT_FOUND;
+        }
+
+        return new ResponseEntity<>(total, status);
     }
 }
