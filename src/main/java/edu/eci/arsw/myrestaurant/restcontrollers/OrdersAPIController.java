@@ -46,6 +46,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -237,7 +238,7 @@ public class OrdersAPIController {
         HttpStatus status = HttpStatus.ACCEPTED;
 
         int total = 0;
-        
+
         try {
             total = data.calculateTableBill(idtable.intValue());
         } catch (OrderServicesException ex) {
@@ -246,10 +247,10 @@ public class OrdersAPIController {
 
         return new ResponseEntity<>(total, status);
     }
-    
+
     @PutMapping("/{idtable}")
     public ResponseEntity<?> putAddProductOrder(@RequestBody String input, @PathVariable Long idtable) {
-        
+
         final JsonParser parser = Json.createParser(new StringReader(input));
 
         try {
@@ -257,7 +258,7 @@ public class OrdersAPIController {
 
             Event event = parser.next();
             event = parser.next();
-            
+
             // table
             String table = null;
             if (success = (event == Event.KEY_NAME)) {
@@ -288,6 +289,16 @@ public class OrdersAPIController {
         } catch (OrdersAPIControllerException ex) {
             ex.printStackTrace();
             return new ResponseEntity<>("Error: " + ex, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/{idtable}")
+    public ResponseEntity<?> putAddProductOrder(@PathVariable Long idtable) {
+        try {
+            data.releaseTable(idtable.intValue());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (OrderServicesException ex) {
+            return new ResponseEntity<>("table " + idtable + " doesn't have reservations", HttpStatus.BAD_REQUEST);
         }
     }
 }
