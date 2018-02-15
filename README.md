@@ -150,12 +150,10 @@ Por defecto, el manejador de órdenes tiene dos órdenes registradas para las me
 Escriba su análisis en el archivo ANALISIS_CONCURRENCIA.txt
 
 	
-<!--### Criterios de evaluación
+### Criterios de evaluación
 
 1. Se pueden crear nuevas órdenes, mediante POST.
 2. Se puede calcular el valor de la orden, mediante GET.
 3. La aplicación permite cambiar la estrategia de cálculo del valor de la orden (cambiando las anotaciones @Service).
 4. La aplicación permite actualizar las órdenes mediante PUT.
-5. En análisis de las posibles condiciones de carrera es consistente.-->
-
-
+5. En análisis de las posibles condiciones de carrera es consistente.
