@@ -1,0 +1,15 @@
+ANÁLISIS DE CONCURRENCIA
+========================
+
+Teniendo en cuenta que Tomcat crea un hilo por cada usuario, se puede presentar una condición de carrera debido a que
+la implementación que se tiene de RestaurantOrderServicesStub no implementa ningún mecanismo para asegurar la atomicidad
+de las operaciones de escritura, por lo que al haber mas de un usuario conectado y que se de la casualidad de modificar la
+misma 'mesa' al mismo tiempo se puede presentar una corrupción de la información de memoria dejando este en un estado
+inconsistente, y donde, al mismo tiempo se pueden realizar operaciones de lectura al mismo tiempo, por lo que también
+se tendría información inconsistente (posiblemente distinta de la que esta escrita en las estructuras de datos).
+
+La forma en que se podría evitar esta condición de carrera es por medio de volver atómicas las operaciones de escritura,
+de forma que se tiene siempre información consistente, o bien también por medio de la sincronización de las secciones criticas
+de escritura, permitiendo tener siempre información consistente entre los usuarios (aunque no necesariamente ser muy eficiente,
+ya que al sincronizar el acceso de escritura se vuelven secuenciales las operaciones hasta que se salga de la sección critica
+y/o solo se efectúen lecturas).
