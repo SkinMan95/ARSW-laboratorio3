@@ -48,6 +48,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -174,7 +175,7 @@ public class OrdersAPIController {
             }
         } catch (OrderServicesException | OrdersAPIControllerException ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>("Error: " + ex, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("Error: " + ex, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -244,5 +245,49 @@ public class OrdersAPIController {
         }
 
         return new ResponseEntity<>(total, status);
+    }
+    
+    @PutMapping("/{idtable}")
+    public ResponseEntity<?> putAddProductOrder(@RequestBody String input, @PathVariable Long idtable) {
+        
+        final JsonParser parser = Json.createParser(new StringReader(input));
+
+        try {
+            boolean success = true;
+
+            Event event = parser.next();
+            event = parser.next();
+            
+            // table
+            String table = null;
+            if (success = (event == Event.KEY_NAME)) {
+                success &= (table = parser.getString()).equals("dishes");
+            }
+
+            Map<String, Integer> dishes = null;
+            event = parser.next();
+            if (success &= (event == Event.START_ARRAY)) {
+                dishes = getDishesFromJsonArray(parser);
+            }
+
+            success &= dishes != null;
+
+            parser.close();
+
+            if (success) {
+                Order ord = data.getTableOrder(idtable.intValue());
+
+                for (String dish : dishes.keySet()) {
+                    ord.addDish(dish, dishes.get(dish));
+                }
+
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Not a valid request:\n" + input, HttpStatus.FORBIDDEN);
+            }
+        } catch (OrdersAPIControllerException ex) {
+            ex.printStackTrace();
+            return new ResponseEntity<>("Error: " + ex, HttpStatus.BAD_REQUEST);
+        }
     }
 }
