@@ -16,34 +16,16 @@
  */
 package edu.eci.arsw.myrestaurant.restcontrollers;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import edu.eci.arsw.myrestaurant.model.Order;
-import edu.eci.arsw.myrestaurant.model.ProductType;
-import edu.eci.arsw.myrestaurant.model.RestaurantProduct;
 import edu.eci.arsw.myrestaurant.services.OrderServicesException;
 import edu.eci.arsw.myrestaurant.services.RestaurantOrderServices;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParser.Event;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -69,7 +51,7 @@ public class OrdersAPIController {
     RestaurantOrderServices ros;
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<?> getResourceHandler() {
+    public ResponseEntity<List> getResourceHandler() {
         //obtener datos que se enviarán a través del API
 
         List<Order> orders = new ArrayList<>();
@@ -77,162 +59,32 @@ public class OrdersAPIController {
             orders.add(ros.getTableOrder(tableWithOrder));
         }
 
-        JsonObjectBuilder jsonDoc = Json.createObjectBuilder();
-
-        JsonArrayBuilder array = Json.createArrayBuilder();
-        for (Order order : orders) {
-            JsonObjectBuilder doc = Json.createObjectBuilder();
-
-            doc.add("table", order.getTableNumber());
-            doc.add("dishes", getJsonArrayOfDishes(order));
-
-            array.add(doc);
-        }
-
-        jsonDoc.add("tables", array);
-
-        return new ResponseEntity<>(jsonDoc.build().toString(), HttpStatus.ACCEPTED);
-    }
-
-    private JsonArrayBuilder getJsonArrayOfDishes(Order ord) {
-
-        JsonArrayBuilder array = Json.createArrayBuilder();
-
-        for (String dish : ord.getOrderedDishes()) {
-            JsonObjectBuilder dJson = Json.createObjectBuilder();
-            dJson.add(dish, ord.getDishOrderedAmount(dish));
-            array.add(dJson);
-        }
-
-        return array;
+        return new ResponseEntity<List>(orders, HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/{idtable}")
-    public ResponseEntity<?> getTableHandler(@PathVariable Long idtable) {
+    public ResponseEntity<Order> getTableHandler(@PathVariable Long idtable) {
         Order order = ros.getTableOrder(idtable.intValue());
 
         HttpStatus status = HttpStatus.ACCEPTED;
-        JsonObjectBuilder jsonDoc = Json.createObjectBuilder();
 
         if (order == null) {
             status = HttpStatus.NOT_FOUND;
-        } else {
-            jsonDoc.add("table", order.getTableNumber());
-            jsonDoc.add("dishes", getJsonArrayOfDishes(order));
         }
 
-        return new ResponseEntity<>(jsonDoc.build().toString(), status);
+        return new ResponseEntity<Order>(order, status);
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<?> postCreateNewOrder(@RequestBody String input) {
-
-        final JsonParser parser = Json.createParser(new StringReader(input));
-
+    public ResponseEntity<?> postCreateNewOrder(@RequestBody Order input) {
         try {
-            boolean success = true;
+            ros.addNewOrderToTable(input);
 
-            Event event = parser.next();
-            event = parser.next();
-            // table
-            String table = null;
-            Long tableNumber = null;
-
-            //System.out.println(event);
-            if (success = (event == Event.KEY_NAME)) {
-                success = (table = parser.getString()).equals("table");
-            }
-
-            //System.out.println("1 " + success + " " + table);
-            event = parser.next();
-            if (success &= (event == Event.VALUE_NUMBER)) {
-                tableNumber = parser.getLong();
-            }
-
-            //System.out.println("2 " + success + " " + event);
-            event = parser.next();
-            if (success = (event == Event.KEY_NAME)) {
-                success = parser.getString().equals("dishes");
-            }
-
-            //System.out.println("3 " + success + " " + event);
-            Map<String, Integer> dishes = null;
-            event = parser.next();
-            if (success &= (event == Event.START_ARRAY)) {
-                dishes = getDishesFromJsonArray(parser);
-            }
-
-            success &= dishes != null;
-
-            //System.out.println("4 " + success + " " + event);
-            parser.close();
-
-            if (success) {
-                Order ord = generateOrder(tableNumber, dishes);
-
-                ros.addNewOrderToTable(ord);
-
-                return new ResponseEntity<>(HttpStatus.CREATED);
-            } else {
-                return new ResponseEntity<>("Not a valid request:\n" + input, HttpStatus.FORBIDDEN);
-            }
-        } catch (OrderServicesException | OrdersAPIControllerException ex) {
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (OrderServicesException ex) {
             ex.printStackTrace();
             return new ResponseEntity<>("Error: " + ex, HttpStatus.BAD_REQUEST);
         }
-    }
-
-    private Map<String, Integer> getDishesFromJsonArray(JsonParser parser) throws OrdersAPIControllerException {
-        Event e = parser.next();
-        boolean valid = (e == Event.START_OBJECT);
-
-        //System.out.println("1 " + e + " " + valid);
-        String key = "";
-        Long value = 0L;
-
-        Map<String, Integer> dishes = new HashMap<>();
-
-        //e = parser.next();
-        while (valid && e != Event.END_ARRAY) {
-            valid &= (e == Event.START_OBJECT);
-            //System.out.println("2 " + e + " " + valid);
-            e = parser.next();
-            if (valid &= (e == Event.KEY_NAME)) {
-                key = parser.getString();
-            }
-
-            e = parser.next();
-            //System.out.println("3 " + e + " " + valid);
-            if (valid &= (e == Event.VALUE_NUMBER)) {
-                value = parser.getLong();
-            }
-
-            if (valid) {
-                dishes.put(key, value.intValue());
-            }
-
-            e = parser.next();
-            valid &= (e == Event.END_OBJECT);
-            //System.out.println("4 " + e + " " + valid);
-            e = parser.next();
-            //System.out.println("5 " + e + " " +valid);
-        }
-
-        if (!valid) {
-            throw new OrdersAPIControllerException("Invalid dishes array");
-        }
-
-        return dishes;
-    }
-
-    private Order generateOrder(Long tableNumber, Map<String, Integer> dishes) throws OrderServicesException {
-        Order r = new Order(tableNumber.intValue());
-
-        for (String key : dishes.keySet()) {
-            r.addDish(key, dishes.get(key));
-        }
-
-        return r;
     }
 
     @GetMapping("/{idtable}/total")
@@ -250,45 +102,17 @@ public class OrdersAPIController {
         return new ResponseEntity<>(total, status);
     }
 
-    @PutMapping("/{idtable}")
-    public ResponseEntity<?> putAddProductOrder(@RequestBody String input, @PathVariable Long idtable) {
-
-        final JsonParser parser = Json.createParser(new StringReader(input));
-
+    @PutMapping()
+    public ResponseEntity<?> putAddProductOrder(@RequestBody Order orderProducts) {
         try {
-            boolean success = true;
-
-            Event event = parser.next();
-            event = parser.next();
-
-            // table
-            String table = null;
-            if (success = (event == Event.KEY_NAME)) {
-                success &= (table = parser.getString()).equals("dishes");
+            Order original = ros.getTableOrder(orderProducts.getTableNumber());
+            
+            for (String dish : orderProducts.getOrderedDishes()) {
+                original.addDish(dish, orderProducts.getDishOrderedAmount(dish));
             }
-
-            Map<String, Integer> dishes = null;
-            event = parser.next();
-            if (success &= (event == Event.START_ARRAY)) {
-                dishes = getDishesFromJsonArray(parser);
-            }
-
-            success &= dishes != null;
-
-            parser.close();
-
-            if (success) {
-                Order ord = ros.getTableOrder(idtable.intValue());
-
-                for (String dish : dishes.keySet()) {
-                    ord.addDish(dish, dishes.get(dish));
-                }
-
-                return new ResponseEntity<>(HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("Not a valid request:\n" + input, HttpStatus.FORBIDDEN);
-            }
-        } catch (OrdersAPIControllerException ex) {
+            
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception ex) {
             ex.printStackTrace();
             return new ResponseEntity<>("Error: " + ex, HttpStatus.BAD_REQUEST);
         }
