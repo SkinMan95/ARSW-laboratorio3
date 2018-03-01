@@ -17,6 +17,7 @@
 package edu.eci.arsw.myrestaurant.restcontrollers;
 
 import edu.eci.arsw.myrestaurant.model.Order;
+import edu.eci.arsw.myrestaurant.model.RestaurantProduct;
 import edu.eci.arsw.myrestaurant.services.OrderServicesException;
 import edu.eci.arsw.myrestaurant.services.RestaurantOrderServices;
 import java.util.ArrayList;
@@ -102,15 +103,30 @@ public class OrdersAPIController {
         return new ResponseEntity<>(total, status);
     }
 
+    @GetMapping("/products")
+    public ResponseEntity<List<RestaurantProduct>> getProductsPrices() {
+        List<RestaurantProduct> products = new ArrayList<>();
+
+        try {
+            for (String productName : ros.getAvailableProductNames()) {
+                products.add(ros.getProductByName(productName));
+            }
+        } catch (OrderServicesException ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return new ResponseEntity<>(products, HttpStatus.ACCEPTED);
+    }
+
     @PutMapping()
     public ResponseEntity<?> putAddProductOrder(@RequestBody Order orderProducts) {
         try {
             Order original = ros.getTableOrder(orderProducts.getTableNumber());
-            
+
             for (String dish : orderProducts.getOrderedDishes()) {
                 original.addDish(dish, orderProducts.getDishOrderedAmount(dish));
             }
-            
+
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception ex) {
             ex.printStackTrace();
