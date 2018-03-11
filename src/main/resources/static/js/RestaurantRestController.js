@@ -2,7 +2,7 @@ var RestControllerModule = (function () {
 
     /* PRIVATE */
     
-    var DEFAULT_ADDRESS = 'http://localhost:8080'; // XXX
+    var DEFAULT_ADDRESS = ''/*'http://localhost:8080'*/;
     var server_url = DEFAULT_ADDRESS + '/orders';
     
     var getProductPrices = function () {
