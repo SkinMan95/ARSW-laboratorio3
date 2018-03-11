@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="http://www.escuelaing.edu.co/favicon.ico">
+
+    <title>ECI ARSW - Update Orders</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="https://getbootstrap.com/docs/4.0/examples/cover/cover.css" rel="stylesheet">
+    <link href="table_styles.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet"> <!-- icons -->
+  </head>
+
+  <body class="text-center" onload="OrdersControllerModule.showOrdersOfTable();">
+    <div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
+      <header class="masthead mb-auto">
+        <div class="inner">
+          <h3 class="masthead-brand">Cover</h3>
+          <nav class="nav nav-masthead justify-content-center">
+            <a class="nav-link" href="index.html">Home</a>
+            <a class="nav-link" href="">Orders</a>
+            <a class="nav-link" href="#">New order</a>
+	    <a class="nav-link active" href="#">Update Orders</a>
+          </nav>
+        </div>
+      </header>
+
+      <main role="main" class="inner cover">
+        <h1 class="cover-heading">Update Orders</h1>
+        <p class="lead">Add or change items from orders from each table.</p>
+        <!-- <p class="lead"> -->
+        <!-- <a href="#" class="btn btn-lg btn-secondary">Learn more</a> -->
+	<div id="order_table">
+	  <table id="table_items_add" class="orders_table">
+	    <tr>
+	      <td>
+		<select id="table_selection" name="table_selection" onchange="OrdersControllerModule.showOrdersOfTable();"> <!-- TODO -->
+		  <!-- <option value="1" class="table_option">Table 1</option> -->
+		  <!-- <option value="2" class="table_option">Table 2</option> -->
+		</select>
+	      </td>
+	      <td>
+		<input id="item_name" name="Item Name" type="text" placeholder="Item Name" />
+	      </td>
+	      <td>
+		Quantity <br />
+		<input id="item_quantity" name="Quantity" type="number" min="1" value="1" />
+	      </td>
+	    </tr>
+	    
+	    <tr>
+	      <td></td>
+	      <td></td>
+	      <td>
+		<input id="item_addBtn" type="button" value="Add" /> <!-- TODO -->
+	      </td>
+	    </tr>
+	  </table>
+
+	  <!-- ******** -->
+	  
+	  <table id="table_items_update" class="order_table_items orders_table">
+	    <tr>
+	      <th>Item</th>
+	      <th>Quantity</th>
+	      <th></th>
+	      <th></th>
+	    </tr>
+
+	    <tr class="table_item">
+	      <td id="table_item_name_1">
+		<input id="item_name" name="Item Name" type="text" placeholder="Item Name" value="Pizza" />
+	      </td>
+	      <td id="table_item_quantity_1">
+		<input id="item_quantity" name="Quantity" type="number" min="1" value="3" />
+	      </td>
+	      <td id="table_item_updateBtn_1">
+		<input type="button" value="Update" onclick="alert('Prueba');" /> <!-- TODO -->
+	      </td>
+	      <td id="table_item_deleteBtn_1">
+		<input type="button" value="Delete" onclick="alert('Prueba');" /> <!-- TODO -->
+	      </td>
+	    </tr>
+
+	    <tr class="table_item">
+	      <td id="table_item_name_2">
+		<input id="item_name" name="Item Name" type="text" placeholder="Item Name" value="Coke" />
+	      </td>
+	      <td id="table_item_quantity_2">
+		<input id="item_quantity" name="Quantity" type="number" min="1" value="4" />
+	      </td>
+	      <td id="table_item_updateBtn_2">
+		<input type="button" value="Update" onclick="alert('Prueba');" /> <!-- TODO -->
+	      </td>
+	      <td id="table_item_deleteBtn_2">
+		<input type="button" value="Delete" onclick="alert('Prueba');" /> <!-- TODO -->
+	      </td>
+	    </tr>
+	</div>
+	</table>
+        <!-- </p> -->
+      </main>
+
+      <footer class="mastfoot mt-auto" />
+    </div>
+
+
+    <!-- Bootstrap core JavaScript
+	 ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"><\/script>')</script>
+      <script src="https://getbootstrap.com/assets/js/vendor/popper.min.js"></script>
+      <script src="https://getbootstrap.com/dist/js/bootstrap.min.js"></script>
+      <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+      <script src="js/RestaurantRestController.js"></script>
+      <script src="js/OrdersController.js"></script>
+
+  </body>
+</html>

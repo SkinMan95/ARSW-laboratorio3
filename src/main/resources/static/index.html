@@ -19,7 +19,7 @@
     <link href="styles.css" rel="stylesheet"> <!-- icons -->
   </head>
 
-  <body class="text-center" onload="loadOrders();">
+  <body class="text-center" onload="OrdersControllerModule.showOrdersByTable();">
     <div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
       <header class="masthead mb-auto">
         <div class="inner">
@@ -28,13 +28,14 @@
             <a class="nav-link active" href="#">Home</a>
             <a class="nav-link" href="#">Orders</a>
             <a class="nav-link" href="#">New order</a>
+            <a class="nav-link" href="updateOrders.html">Update Orders</a>
           </nav>
         </div>
       </header>
 
       <main role="main" class="inner cover">
         <h1 class="cover-heading">Tables with orders</h1>
-        <p class="lead">Add and remove items from orders from each table shown.</p>
+        <p class="lead">Review items from orders from each table shown.</p>
         <!-- <p class="lead"> -->
         <!-- <a href="#" class="btn btn-lg btn-secondary">Learn more</a> -->
 	<div id="order_tables">
@@ -76,6 +77,7 @@
       <script src="https://getbootstrap.com/assets/js/vendor/popper.min.js"></script>
       <script src="https://getbootstrap.com/dist/js/bootstrap.min.js"></script>
       <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+      <script src="js/RestaurantRestController.js"></script>
       <script src="js/OrdersController.js"></script>
 
   </body>
