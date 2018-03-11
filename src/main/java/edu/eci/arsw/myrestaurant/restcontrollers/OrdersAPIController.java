@@ -121,11 +121,8 @@ public class OrdersAPIController {
     @PutMapping()
     public ResponseEntity<?> putAddProductOrder(@RequestBody Order orderProducts) {
         try {
-            Order original = ros.getTableOrder(orderProducts.getTableNumber());
-
-            for (String dish : orderProducts.getOrderedDishes()) {
-                original.addDish(dish, orderProducts.getDishOrderedAmount(dish));
-            }
+            ros.releaseTable(orderProducts.getTableNumber());
+            ros.addNewOrderToTable(orderProducts);
 
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception ex) {

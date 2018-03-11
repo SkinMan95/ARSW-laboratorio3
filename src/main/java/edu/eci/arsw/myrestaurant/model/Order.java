@@ -2,6 +2,7 @@ package edu.eci.arsw.myrestaurant.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +20,7 @@ public class Order {
     private int tableNumber;
 
     public Order() {
+        this((new Random()).nextInt());
     }
 
     public Order(int tableNumber) {
